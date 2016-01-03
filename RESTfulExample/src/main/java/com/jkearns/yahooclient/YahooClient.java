@@ -1,4 +1,4 @@
-package com.mkyong.yahooclient;
+package com.jkearns.yahooclient;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -10,6 +10,12 @@ import javax.xml.parsers.ParserConfigurationException;
 
 import org.xml.sax.SAXException;
 
+/**
+ * YahooClient
+ * Contains various CRUD actions to interfaces with Yahoo Finance API 
+ * @author Jack
+ *
+ */
 public class YahooClient {
 
 	/**

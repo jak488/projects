@@ -1,3 +1,4 @@
-com\mkyong\yahooclient\YahooClient.class
-com\mkyong\manager\ScreenerManager.class
-com\mkyong\rest\ScreenerService.class
+com\jkearns\manager\ScreenerManager.class
+com\jkearns\yahooclient\YahooClient.class
+com\jkearns\rest\ScreenerService.class
+com\jkearns\manager\ScreenerManager$1.class
