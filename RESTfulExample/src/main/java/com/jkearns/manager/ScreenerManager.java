@@ -8,7 +8,6 @@ import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
-import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -36,7 +35,7 @@ import com.jkearns.yahooclient.*;;
  */
 public class ScreenerManager {
 	
-	private final String baseUrl = "http://query.yahooapis.com/v1/public/yql?q=";
+	private final String yqlBaseUrl = "http://query.yahooapis.com/v1/public/yql?q=";
 
 	/**
 	 * Name: escapeURL
@@ -59,24 +58,24 @@ public class ScreenerManager {
 	 * 	AA|Alcoa Inc. Common Stock|N|AA|N|100|N|AA
 	 * 	AA$|Alcoa Inc. $3.75 Preferred Stock|A|AAp|N|100|N|AA-
 	 * 	etc
-	 * @returns full list of NYSE stock tickers
+	 * @returns full List of NYSE stock tickers
 	 * @throws IOException
 	 */
-	public String getAllTickers() throws IOException {
+	public List<String> getAllTickers() throws IOException {
         FileReader fileReader = new FileReader("C:\\Users\\Jack\\GitWorkspace\\RESTfulExample\\tickers.txt");
 
         BufferedReader bufferedReader = new BufferedReader(fileReader);
 
         String line = null;
-        StringBuilder tickers = new StringBuilder();
+        List<String> tickers = new ArrayList<String>();
         boolean firstLine = true;
         while((line = bufferedReader.readLine()) != null) {
         	if(!firstLine) {
-        		tickers.append(line.split("\\s+")[0] + "\n");
+        		tickers.add(line.split("\\s+")[0]);
         	}
         	firstLine = false;
         }   
-        return tickers.toString();
+        return tickers;
 	}
 	
 	/**
@@ -89,7 +88,7 @@ public class ScreenerManager {
 	 * @throws URISyntaxException
 	 */
 	public List<Entry<String, String>> getOrderedStocks(String attr) throws SAXException, IOException, ParserConfigurationException, URISyntaxException {
-		String[] allTickers = this.getAllTickers().split("\\n");
+		List<String> allTickers = this.getAllTickers();
 		
 		Map<String, String> unsortedStocks = new TreeMap<String, String>();
 		for(String stock : allTickers) {
@@ -124,7 +123,7 @@ public class ScreenerManager {
 	 */
 	public String getSingleAttribute(String ticker, String attr) throws SAXException, IOException, ParserConfigurationException, URISyntaxException {
 		String yql = "select " + attr + " from yahoo.finance.quotes where symbol in ( '" + ticker + "' )";
-		String yqlUrlString = baseUrl + yql + "&env=store://datatables.org/alltableswithkeys";
+		String yqlUrlString = this.yqlBaseUrl + yql + "&env=store://datatables.org/alltableswithkeys";
 		
 		YahooClient client = new YahooClient();
 	    String response = client.sendGET(escapeUrl(yqlUrlString));

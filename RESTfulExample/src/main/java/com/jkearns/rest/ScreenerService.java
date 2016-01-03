@@ -2,10 +2,11 @@ package com.jkearns.rest;
  
 import java.io.IOException;
 import java.net.URISyntaxException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.TreeMap;
 import java.util.Map.Entry;
+
 import org.json.JSONObject;
 import org.json.JSONException;
 
@@ -21,7 +22,7 @@ import com.jkearns.manager.ScreenerManager;
  
 /**
  * ScreenerService
- * RESTful interface that parses data from manager class(es) and marshals to XML
+ * RESTful interface that parses data from manager class(es) and converts to JSON
  * @author Jack
  *
  */
@@ -30,9 +31,10 @@ public class ScreenerService {
 
 	/**
 	 * Name: getProperty
+	 * Convenience call to get a particular stock attribute in JSON format.
 	 * @param ticker
 	 * @param param
-	 * @returns a parameter of a given stock in XML
+	 * @returns a parameter of a given stock in JSON
 	 * @throws SAXException
 	 * @throws IOException
 	 * @throws ParserConfigurationException
@@ -44,52 +46,62 @@ public class ScreenerService {
  
 		ScreenerManager mgr = new ScreenerManager();
         String attrValue = mgr.getSingleAttribute(ticker, attr);
-        String myString = new JSONObject().put("JSON", "Hello, World!").toString();
+        String JsonString = new JSONObject().put("attribute", attrValue).toString();
  
-		return Response.status(200).entity(attrValue).build();
+		return Response.status(200).entity(JsonString).build();
  
 	}
 	
 	/**
 	 * Name: getTickers
-	 * @returns list of all ticker symbols from the NYSE in XML
+	 * @returns list of all ticker symbols from the NYSE in JSON
 	 * @throws SAXException
 	 * @throws IOException
 	 * @throws ParserConfigurationException
 	 * @throws URISyntaxException
+	 * @throws JSONException 
 	 */
 	@GET
 	@Path("/all_tickers")
-	public Response getTickers() throws SAXException, IOException, ParserConfigurationException, URISyntaxException {
+	public Response getTickers() throws IOException, ParserConfigurationException, URISyntaxException, JSONException {
  
 		ScreenerManager mgr = new ScreenerManager();
-        String tickersXml = mgr.getAllTickers();
+        List<String> allTickers = mgr.getAllTickers();
         
-		return Response.status(200).entity(tickersXml).build();
+        List<String> tickerList = new ArrayList<String>();
+        for(String ticker : allTickers) {
+        	tickerList.add(ticker);
+        }
+        
+        JSONObject tickersJson = new JSONObject();
+        tickersJson.put("tickers", tickerList);
+        
+		return Response.status(200).entity(tickersJson.toString()).build();
 	}
 	
 	/**
 	 * Name: getStocksOrderedBy
 	 * @param attr
-	 * @returns a list of NYSE stocks sorted by the given attribute in XML
+	 * @returns a list of NYSE stocks sorted by the given attribute in JSON
 	 * @throws IOException
 	 * @throws SAXException
 	 * @throws ParserConfigurationException
 	 * @throws URISyntaxException
+	 * @throws JSONException 
 	 */
 	@GET
 	@Path("/ordered_stocks/{attribute}")
-	public Response getStocksOrderedBy(@PathParam("attribute") String attr) throws IOException, SAXException, ParserConfigurationException, URISyntaxException {
+	public Response getStocksOrderedBy(@PathParam("attribute") String attr) throws IOException, SAXException, ParserConfigurationException, URISyntaxException, JSONException {
 		
 		ScreenerManager mgr = new ScreenerManager();
 		List<Entry<String, String>> orderedStocks = mgr.getOrderedStocks(attr);
-		StringBuilder stocksXml = new StringBuilder();
+		JSONObject stocksJson = new JSONObject();
 		
 		for(Map.Entry<String, String> entry : orderedStocks){
-			stocksXml.append((entry.getKey() + " ==== " + entry.getValue() + "\n"));
+			stocksJson.put(entry.getKey(), entry.getValue());
 		}
 		
-		return Response.status(200).entity(stocksXml.toString()).build();
+		return Response.status(200).entity(stocksJson.toString()).build();
 	}
  
 }
