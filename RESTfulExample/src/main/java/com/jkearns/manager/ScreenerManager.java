@@ -40,11 +40,11 @@ public class ScreenerManager {
 	/**
 	 * Name: escapeURL
 	 * @param urlString
-	 * @returns escaped URL
+	 * @return escaped version of the URL provided
 	 * @throws MalformedURLException
 	 * @throws URISyntaxException
 	 */
-	public String escapeUrl(String urlString) throws MalformedURLException, URISyntaxException {
+	private String escapeUrl(String urlString) throws MalformedURLException, URISyntaxException {
 		URL url= new URL(urlString);
 		URI youAreEye = new URI(url.getProtocol(), url.getUserInfo(), url.getHost(), url.getPort(), url.getPath(), url.getQuery(), url.getRef());
 		return youAreEye.toASCIIString();
@@ -58,15 +58,16 @@ public class ScreenerManager {
 	 * 	AA|Alcoa Inc. Common Stock|N|AA|N|100|N|AA
 	 * 	AA$|Alcoa Inc. $3.75 Preferred Stock|A|AAp|N|100|N|AA-
 	 * 	etc
-	 * @returns full List of NYSE stock tickers
+	 * @return full List of NYSE stock tickers
 	 * @throws IOException
 	 */
 	public List<String> getAllTickers() throws IOException {
+		// get file containing list of ticker symbols 
         FileReader fileReader = new FileReader("C:\\Users\\Jack\\GitWorkspace\\RESTfulExample\\tickers.txt");
 
+        // read file line by line
         BufferedReader bufferedReader = new BufferedReader(fileReader);
-
-        String line = null;
+        String line = new String();
         List<String> tickers = new ArrayList<String>();
         boolean firstLine = true;
         while((line = bufferedReader.readLine()) != null) {
@@ -75,40 +76,57 @@ public class ScreenerManager {
         	}
         	firstLine = false;
         }   
+        
         return tickers;
 	}
 	
 	/**
 	 * Name: getOrderedStocks
 	 * @param attr
-	 * @returns a list of NYSE stocks sorted by the given attribute
+	 * @return a List of Map.Entries of NYSE stocks sorted by the given attribute
 	 * @throws SAXException
 	 * @throws IOException
 	 * @throws ParserConfigurationException
 	 * @throws URISyntaxException
 	 */
-	public List<Entry<String, String>> getOrderedStocks(String attr) throws SAXException, IOException, ParserConfigurationException, URISyntaxException {
+	public List<Entry<String, Double>> getOrderedStocks(String attr) throws SAXException, IOException, ParserConfigurationException, URISyntaxException {
 		List<String> allTickers = this.getAllTickers();
 		
-		Map<String, String> unsortedStocks = new TreeMap<String, String>();
+		// convert list of stock tickers to a map with the value for each entry being the stock's corresponding attribute value
+		Map<String, Double> unsortedStocks = new TreeMap<String, Double>();
 		for(String stock : allTickers) {
 			String singleAttr = this.getSingleAttribute(stock, attr);
 			if(singleAttr != null && !singleAttr.equals("")) {
-				unsortedStocks.put(stock, this.getSingleAttribute(stock, attr));
+				unsortedStocks.put(stock, Double.valueOf(this.getSingleAttribute(stock, attr)));
 			}
 		}
 		
-		// Sort the map by value
-		Set<Entry<String, String>> set = unsortedStocks.entrySet();
-        List<Entry<String, String>> sortedStockList = new ArrayList<Entry<String, String>>(set);
-		Collections.sort(sortedStockList, new Comparator<Map.Entry<String, String>>()
+		// Sort the map by value, which involves converting the Map to a List of Map.Entries.
+        List<Entry<String, Double>> sortedStockList = new ArrayList<Entry<String, Double>>(unsortedStocks.entrySet());
+		Collections.sort(sortedStockList, new Comparator<Map.Entry<String, Double>>()
         {
-            public int compare( Map.Entry<String, String> o1, Map.Entry<String, String> o2 )
+            public int compare( Map.Entry<String, Double> o1, Map.Entry<String, Double> o2 )
             {
-                return (Double.valueOf(o2.getValue()).compareTo(Double.valueOf(o1.getValue())));
+                return o2.getValue().compareTo(o1.getValue());
             }
         } );
+		
 		return sortedStockList;
+	}
+	
+	/**
+	 * Name: getTopStocks
+	 * @param attr
+	 * @param numStocks
+	 * @return list of top N stocks ordered by a particular attribute
+	 * @throws SAXException
+	 * @throws IOException
+	 * @throws ParserConfigurationException
+	 * @throws URISyntaxException
+	 */
+	public List<Entry<String, Double>> getTopStocks(String attr, Integer numStocks) throws SAXException, IOException, ParserConfigurationException, URISyntaxException {
+		List<Entry<String, Double>> allOrderedStocks = this.getOrderedStocks(attr);
+		return allOrderedStocks.subList(0, numStocks - 1);
 	}
 	
 	/**
@@ -122,18 +140,23 @@ public class ScreenerManager {
 	 * @throws URISyntaxException
 	 */
 	public String getSingleAttribute(String ticker, String attr) throws SAXException, IOException, ParserConfigurationException, URISyntaxException {
+		//build yahoo query language URL string
 		String yql = "select " + attr + " from yahoo.finance.quotes where symbol in ( '" + ticker + "' )";
 		String yqlUrlString = this.yqlBaseUrl + yql + "&env=store://datatables.org/alltableswithkeys";
 		
+		// send get request
 		YahooClient client = new YahooClient();
-	    String response = client.sendGET(escapeUrl(yqlUrlString));
+	    String response = client.sendGET(escapeUrl(yqlUrlString)); // need to escape YQL URL before sending request
 	    
+	    // parse XML response
 	    DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
 	    DocumentBuilder builder = factory.newDocumentBuilder();
 	    Document document = (Document) builder.parse(new InputSource(new StringReader(response.toString())));
-	    Element ratio = document.getDocumentElement();
-	    if(ratio.getElementsByTagName(attr) != null && ratio.getElementsByTagName(attr).item(0) != null) {
-	    	return ratio.getElementsByTagName(attr).item(0).getTextContent();
+	    Element attributeInfo = document.getDocumentElement();
+	    
+	    // we only expect one XML element to be returned, so get the first one and return its text content
+	    if(attributeInfo.getElementsByTagName(attr) != null && attributeInfo.getElementsByTagName(attr).item(0) != null) {
+	    	return attributeInfo.getElementsByTagName(attr).item(0).getTextContent();
 	    }
 	    else {
 	    	return "";
