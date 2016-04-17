@@ -38,7 +38,7 @@ public class ScreenerManager {
 	
 	private final String yqlBaseUrl = "http://query.yahooapis.com/v1/public/yql?q=";
 	private final List<String> allowableAttrs = Arrays.asList("Ask", "Bid", "PEGRatio", "PERatio", "DividendShare", "EarningsShare", "OneyrTargetPrice", "Volume");
-
+	private final String tickersFileDir = "C:\\Users\\Jack\\GitWorkspace\\RESTfulExample\\tickers.txt"; // TODO: make this directory configurable
 
 	/**
 	 * Name: escapeURL
@@ -80,7 +80,7 @@ public class ScreenerManager {
 	 */
 	public List<String> getAllTickers() throws IOException {
 		// get file containing list of ticker symbols 
-        FileReader fileReader = new FileReader("C:\\Users\\Jack\\GitWorkspace\\RESTfulExample\\tickers.txt");
+        FileReader fileReader = new FileReader(this.tickersFileDir);
 
         // read file line by line
         BufferedReader bufferedReader = new BufferedReader(fileReader);

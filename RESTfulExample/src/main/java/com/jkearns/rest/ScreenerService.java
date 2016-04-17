@@ -3,7 +3,6 @@ package com.jkearns.rest;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -60,7 +59,7 @@ public class ScreenerService {
 	
 	/**
 	 * Name: getTickers
-	 * @return JSON formatted collection of all ticker symbols from the NYSE 
+	 * @return JSON formatted collection of all NYSE ticker symbols from the tickers.txt file specified in ScreenerManager 
 	 * @throws SAXException
 	 * @throws IOException
 	 * @throws ParserConfigurationException

@@ -8,10 +8,8 @@ import java.util.Map.Entry;
 import javax.xml.parsers.ParserConfigurationException;
 
 import org.json.JSONException;
-import org.junit.AfterClass;
 import org.junit.Test;
 import org.xml.sax.SAXException;
-import org.junit.BeforeClass;
 
 import com.jkearns.exceptions.ScreenerException;
 import com.jkearns.manager.ScreenerManager;
@@ -19,16 +17,6 @@ import com.jkearns.manager.ScreenerManager;
 import junit.framework.*;
 
 public class ScreenerManagerTest extends TestCase {
-   
-   @BeforeClass
-   public static void oneTimeSetUp() {
-       // one-time initialization code   
-   }
-
-   @AfterClass
-   public static void oneTimeTearDown() {
-       // one-time cleanup code
-   }
 
    @Test
    public void testGetOneAttribute() throws SAXException, IOException, ParserConfigurationException, URISyntaxException, JSONException, ScreenerException{
