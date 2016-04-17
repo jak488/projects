@@ -18,6 +18,7 @@ import javax.xml.parsers.ParserConfigurationException;
 
 import org.xml.sax.SAXException;
 
+import com.jkearns.exceptions.ScreenerException;
 import com.jkearns.manager.ScreenerManager;
  
 /**
@@ -39,10 +40,11 @@ public class ScreenerService {
 	 * @throws IOException
 	 * @throws ParserConfigurationException
 	 * @throws URISyntaxException
+	 * @throws ScreenerException 
 	 */
 	@GET
 	@Path("/{ticker}/{attribute}")
-	public Response getStockAttribute(@PathParam("ticker") String ticker, @PathParam("attribute") String attr) throws SAXException, IOException, JSONException, ParserConfigurationException, URISyntaxException {
+	public Response getStockAttribute(@PathParam("ticker") String ticker, @PathParam("attribute") String attr) throws SAXException, IOException, JSONException, ParserConfigurationException, URISyntaxException, ScreenerException {
  
 		// get value of a given stock attribute
 		ScreenerManager mgr = new ScreenerManager();
@@ -93,10 +95,12 @@ public class ScreenerService {
 	 * @throws ParserConfigurationException
 	 * @throws URISyntaxException
 	 * @throws JSONException 
+	 * @throws ScreenerException 
+	 * @throws NumberFormatException 
 	 */
 	@GET
 	@Path("/ranked_stocks/{attribute}")
-	public Response getRankedStocks(@PathParam("attribute") String attr) throws IOException, SAXException, ParserConfigurationException, URISyntaxException, JSONException {
+	public Response getRankedStocks(@PathParam("attribute") String attr) throws IOException, SAXException, ParserConfigurationException, URISyntaxException, JSONException, NumberFormatException, ScreenerException {
 		
 		// check if the attribute given is a valid numeric attribute
 		if(!"PEGRatio".equals(attr)) {
@@ -129,10 +133,12 @@ public class ScreenerService {
 	 * @throws ParserConfigurationException
 	 * @throws URISyntaxException
 	 * @throws JSONException 
+	 * @throws ScreenerException 
+	 * @throws NumberFormatException 
 	 */
 	@GET
 	@Path("/ordered_stocks/{number}/{attribute}")
-	public Response getTopStocksByAttr(@PathParam("attribute") String attr, @PathParam("number") Integer numStocks) throws IOException, SAXException, ParserConfigurationException, URISyntaxException, JSONException {
+	public Response getTopStocksByAttr(@PathParam("attribute") String attr, @PathParam("number") Integer numStocks) throws IOException, SAXException, ParserConfigurationException, URISyntaxException, JSONException, NumberFormatException, ScreenerException {
 		
 		// check if the attribute given is a valid numeric attribute
 		if(!"PEGRatio".equals(attr)) {

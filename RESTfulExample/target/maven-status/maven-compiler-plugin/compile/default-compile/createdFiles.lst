@@ -1,3 +1,4 @@
+com\jkearns\exceptions\ScreenerException.class
 com\jkearns\manager\ScreenerManager.class
 com\jkearns\yahooclient\YahooClient.class
 com\jkearns\rest\ScreenerService.class

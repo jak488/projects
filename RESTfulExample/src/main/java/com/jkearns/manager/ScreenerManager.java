@@ -14,7 +14,6 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.Set;
 import java.util.TreeMap;
 
 import javax.xml.parsers.DocumentBuilder;
@@ -26,6 +25,7 @@ import org.w3c.dom.Element;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
+import com.jkearns.exceptions.ScreenerException;
 import com.jkearns.yahooclient.*;;
 
 /**
@@ -76,6 +76,7 @@ public class ScreenerManager {
         	}
         	firstLine = false;
         }   
+        bufferedReader.close();
         
         return tickers;
 	}
@@ -88,8 +89,10 @@ public class ScreenerManager {
 	 * @throws IOException
 	 * @throws ParserConfigurationException
 	 * @throws URISyntaxException
+	 * @throws ScreenerException 
+	 * @throws NumberFormatException 
 	 */
-	public List<Entry<String, Double>> getOrderedStocks(String attr) throws SAXException, IOException, ParserConfigurationException, URISyntaxException {
+	public List<Entry<String, Double>> getOrderedStocks(String attr) throws SAXException, IOException, ParserConfigurationException, URISyntaxException, NumberFormatException, ScreenerException {
 		List<String> allTickers = this.getAllTickers();
 		
 		// convert list of stock tickers to a map with the value for each entry being the stock's corresponding attribute value
@@ -123,10 +126,12 @@ public class ScreenerManager {
 	 * @throws IOException
 	 * @throws ParserConfigurationException
 	 * @throws URISyntaxException
+	 * @throws ScreenerException 
+	 * @throws NumberFormatException 
 	 */
-	public List<Entry<String, Double>> getTopStocks(String attr, Integer numStocks) throws SAXException, IOException, ParserConfigurationException, URISyntaxException {
+	public List<Entry<String, Double>> getTopStocks(String attr, Integer numStocks) throws SAXException, IOException, ParserConfigurationException, URISyntaxException, NumberFormatException, ScreenerException {
 		List<Entry<String, Double>> allOrderedStocks = this.getOrderedStocks(attr);
-		return allOrderedStocks.subList(0, numStocks - 1);
+		return allOrderedStocks.subList(0, numStocks);
 	}
 	
 	/**
@@ -138,8 +143,9 @@ public class ScreenerManager {
 	 * @throws IOException
 	 * @throws ParserConfigurationException
 	 * @throws URISyntaxException
+	 * @throws ScreenerException 
 	 */
-	public String getSingleAttribute(String ticker, String attr) throws SAXException, IOException, ParserConfigurationException, URISyntaxException {
+	public String getSingleAttribute(String ticker, String attr) throws SAXException, IOException, ParserConfigurationException, URISyntaxException, ScreenerException {
 		//build yahoo query language URL string
 		String yql = "select " + attr + " from yahoo.finance.quotes where symbol in ( '" + ticker + "' )";
 		String yqlUrlString = this.yqlBaseUrl + yql + "&env=store://datatables.org/alltableswithkeys";
@@ -159,7 +165,7 @@ public class ScreenerManager {
 	    	return attributeInfo.getElementsByTagName(attr).item(0).getTextContent();
 	    }
 	    else {
-	    	return "";
+	    	throw new ScreenerException("Attribute " + attr + " not found for stock " + ticker);
 	    }
 	}
 }
