@@ -108,9 +108,10 @@ public class ScreenerService {
 		ScreenerManager mgr = new ScreenerManager();
 		List<Entry<String, Double>> orderedStocks = mgr.getOrderedStocks(attr);
 		
-		// convert to json
+		// convert to json  
+		// Note that JSONObjects are not sortable, so instead we'll give each entry an index corresponding to the stock's rank.
 		JSONObject stocksJson = new JSONObject();
-		Integer idx = 1; // start with stock with largest attribute value
+		Integer idx = 1; // give each stock an index, starting with stock with largest attribute value
 		for(Map.Entry<String, Double> entry : orderedStocks){
 			stocksJson.put(entry.getKey(), idx);
 			idx++;
