@@ -1,4 +1,4 @@
-package com.jkearns.test;
+package com.jkearns;
 
 import org.junit.AfterClass;
 import org.junit.Test;
@@ -21,6 +21,7 @@ public class ScreenerManagerTest extends TestCase {
 
    @Test
    public void testSample(){
-      // TODO: insert test code
+	   // TODO: insert test code
+	   assertTrue(true);
    }
 }
