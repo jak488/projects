@@ -9,6 +9,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
@@ -36,6 +37,8 @@ import com.jkearns.yahooclient.*;;
 public class ScreenerManager {
 	
 	private final String yqlBaseUrl = "http://query.yahooapis.com/v1/public/yql?q=";
+	private final List<String> allowableAttrs = Arrays.asList("Ask", "Bid", "PEGRatio", "PERatio", "DividendShare", "EarningsShare", "OneyrTargetPrice", "Volume");
+
 
 	/**
 	 * Name: escapeURL
@@ -48,6 +51,20 @@ public class ScreenerManager {
 		URL url= new URL(urlString);
 		URI youAreEye = new URI(url.getProtocol(), url.getUserInfo(), url.getHost(), url.getPort(), url.getPath(), url.getQuery(), url.getRef());
 		return youAreEye.toASCIIString();
+	}
+	
+	/**
+	 * Name: isAllowableAttribute
+	 * @param attr
+	 * @returns true or false depending on if the attribute provided is permissible to search for
+	 */
+	private boolean isAllowableAttribute(String attr) {
+		if(this.allowableAttrs.contains(attr)) {
+			return true;
+		}
+		else {
+			return false;
+		}
 	}
 	
 	/**
@@ -93,6 +110,13 @@ public class ScreenerManager {
 	 * @throws NumberFormatException 
 	 */
 	public List<Entry<String, Double>> getOrderedStocks(String attr) throws SAXException, IOException, ParserConfigurationException, URISyntaxException, NumberFormatException, ScreenerException {
+		
+		// check if the attribute given is a valid rankable attribute
+		if(!this.isAllowableAttribute(attr)) {
+			String errorMessage = "Attribute must be one of the following: " + this.allowableAttrs.toString();
+			throw new ScreenerException(errorMessage);
+		}
+		
 		List<String> allTickers = this.getAllTickers();
 		
 		// convert list of stock tickers to a map with the value for each entry being the stock's corresponding attribute value

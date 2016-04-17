@@ -3,6 +3,7 @@ package com.jkearns.rest;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -102,12 +103,6 @@ public class ScreenerService {
 	@Path("/ranked_stocks/{attribute}")
 	public Response getRankedStocks(@PathParam("attribute") String attr) throws IOException, SAXException, ParserConfigurationException, URISyntaxException, JSONException, NumberFormatException, ScreenerException {
 		
-		// check if the attribute given is a valid numeric attribute
-		if(!"PEGRatio".equals(attr)) {
-			String errorMessage = "Attribute must be one of the following: PEGRatio";
-			return Response.status(200).entity(errorMessage).build();
-		}
-		
 		// then get the list of stocks ordered by the attribute provided
 		ScreenerManager mgr = new ScreenerManager();
 		List<Entry<String, Double>> orderedStocks = mgr.getOrderedStocks(attr);
@@ -137,14 +132,8 @@ public class ScreenerService {
 	 * @throws NumberFormatException 
 	 */
 	@GET
-	@Path("/ordered_stocks/{number}/{attribute}")
+	@Path("/ranked_stocks/{number}/{attribute}")
 	public Response getTopStocksByAttr(@PathParam("attribute") String attr, @PathParam("number") Integer numStocks) throws IOException, SAXException, ParserConfigurationException, URISyntaxException, JSONException, NumberFormatException, ScreenerException {
-		
-		// check if the attribute given is a valid numeric attribute
-		if(!"PEGRatio".equals(attr)) {
-			String errorMessage = "Attribute must be one of the following: PEGRatio";
-			return Response.status(200).entity(errorMessage).build();
-		}
 		
 		// then get the list of top stocks ranked by the attribute provided
 		ScreenerManager mgr = new ScreenerManager();
